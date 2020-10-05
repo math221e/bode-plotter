@@ -1,14 +1,30 @@
 import pyvisa
 import numpy
 from matplotlib.pyplot import *
-import time
 import control
+import wx
 
-def bodeplot(start_exp, end_exp, num_per_decade, num, den):
-    print("starting plot")
+def bodeplot(frame, start_exp, end_exp, num_per_decade, num, den, save_data):
+    frame.SetStatusText("Starter...")
     style.use("classic")
 
     rm = pyvisa.ResourceManager()
+
+    if len(rm.list_resources()) != 1:
+        frame.SetStatusText("Fejl...")
+        wx.MessageBox("Der blev ikke fundet noget oscilloskop. Sørg for at det er forbundet til computeren.",
+                      "Fejl!",
+                      wx.OK|wx.ICON_WARNING)
+        frame.SetStatusText("Klar")
+
+        return
+
+    hideTf = False
+
+    if den == "[1, 1]" and num == "[1]":
+        hideTf = True
+
+
     scope = rm.open_resource(rm.list_resources()[0])
 
     scope.write_termination = "\n"
@@ -27,15 +43,15 @@ def bodeplot(start_exp, end_exp, num_per_decade, num, den):
     phase = []
 
     for index, f in enumerate(freqs):
-        print(str(f) + "Hz")
-    
+        frame.SetStatusText(str(f) + "Hz")
+
         if index % round(N/10) == 0:
             scope.write(":TIM:RANG " + str(2/f))
             scope.write(":CHAN1:RANG " + str(last_value*2))
             scope.write(":CHAN2:RANG " + str(last_value2*2))
 
         scope.write(":WGEN:FREQ " + str(f))
-        #time.sleep(0.01)
+
         val = scope.query_ascii_values(":MEAS:VAMP? CHAN1", converter="f")[0]
         if val > 50:
             val = 0
@@ -52,37 +68,44 @@ def bodeplot(start_exp, end_exp, num_per_decade, num, den):
         last_value2 = val2
 
 
-    sys = control.tf(eval(num), eval(den))
 
-
-    mag, p, omega = control.bode(sys, Plot=False)
-
-    mag = 20*numpy.log(mag)
-    p = p / 3.14 * 180
-    omega = omega /(2*3.14)
+    if hideTf == False:
+        sys = control.tf(eval(num), eval(den))
+        mag, p, omega = control.bode(sys, Plot=False, omega=freqs*2*3.14)
+        mag = 20*numpy.log(mag)
+        p = p / 3.14 * 180
+        omega = omega /(2*3.14)
 
     values = numpy.array(values)
     values_chan2 = numpy.array(values_chan2)
     db_vals = numpy.log(values / values_chan2)*20
 
-    numpy.savetxt("channel_1_amplitude.csv", values, delimiter=";")
-    numpy.savetxt("channel_2_amplitude.csv", values_chan2, delimiter=";")
-    numpy.savetxt("amplitude_db.csv", db_vals, delimiter=";")
-    numpy.savetxt("frequencies.csv", freqs, delimiter=";")
-    numpy.savetxt("phase.csv", phase, delimiter=";")
+    if save_data == True:
+        numpy.savetxt("bode_data.csv", zip(freqs, db_vals, phas), delimiter=";", header="Frequency;Amplitude;Phase")
 
     fig = figure(figsize=(14, 6))
 
     subplot(1, 2, 1)
     gca().set_title('Amplitude')
-    scatter(freqs, db_vals, label="Data")
-    plot(omega, mag, color="red", label="TransferFuntion")
+    plot(freqs, db_vals, label="Data", marker=".")
+
+    if hideTf == False:
+        plot(omega, mag, color="red", label="TransferFuntion")
+
     legend()
     xscale("log")
     subplot(1, 2, 2)
     gca().set_title('Phase')
-    scatter(freqs, phase, label="Data")
-    plot(omega, p, color="red", label="TransferFunction")
+    plot(freqs, phase, label="Data", marker=".")
+
+    if hideTf == False:
+        plot(omega, p, color="red", label="TransferFunction")
+
     legend()
     xscale("log")
+
+    frame.SetStatusText("Færdig")
+
     show()
+
+    frame.SetStatusText("Klar")
