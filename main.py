@@ -3,12 +3,14 @@ import plotter
 
 class AppFrame(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(300,275))
+        wx.Frame.__init__(self, parent, title=title, size=(300,325))
         label1 = wx.StaticText(self, label="Start frekvens (10^)", pos=(20,20))
         label2 = wx.StaticText(self, label="Slut frekvens (10^) ", pos=(20,50))
         label3 = wx.StaticText(self, label="Målinger pr. dekade ", pos=(20,80))
         label4 = wx.StaticText(self, label="TF (Tæller) ", pos=(20,110))
         label5 = wx.StaticText(self, label="TF (Nævner) ", pos=(20, 140))
+
+        label6 = wx.StaticText(self, label="Dokumentation findes på\nhttps://math221e.github.io ", pos=(20, 240))
 
         self.input1 = wx.TextCtrl(self, value="1", pos=(150, 20), size=(140,-1))
         self.input2 = wx.TextCtrl(self, value="5", pos=(150, 50), size=(140,-1))
