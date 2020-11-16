@@ -39,7 +39,7 @@ def bodeplot(frame, start_exp, end_exp, num_per_decade, num, den, save_data):
 
     hideTf = False
 
-    if den == "[1, 1]" and num == "[1]":
+    if den.strip() == "" and num.strip() == "":
         hideTf = True
 
 
@@ -77,9 +77,7 @@ def bodeplot(frame, start_exp, end_exp, num_per_decade, num, den, save_data):
 
         channel1 = scope.query_ascii_values(":MEAS:VPP? CHAN1", converter="f")[0]
         if channel1 > 50:
-            print(channel1)
-            exit()
-            #channel1 = channel1_vamps[-1]
+            channel1 = channel1_vamps[-1]
             channel1 = 0
     
         channel2 = scope.query_ascii_values(":MEAS:VPP? CHAN2", converter="f")[0]

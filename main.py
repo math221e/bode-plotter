@@ -1,22 +1,26 @@
 import wx
 import plotter
 
+VERSION = 1.0
+
 class AppFrame(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(300,325))
+        wx.Frame.__init__(self, parent, title=title, size=(300,350))
         label1 = wx.StaticText(self, label="Start frekvens (10^)", pos=(20,20))
         label2 = wx.StaticText(self, label="Slut frekvens (10^) ", pos=(20,50))
         label3 = wx.StaticText(self, label="Målinger pr. dekade ", pos=(20,80))
         label4 = wx.StaticText(self, label="TF (Tæller) ", pos=(20,110))
         label5 = wx.StaticText(self, label="TF (Nævner) ", pos=(20, 140))
 
-        label6 = wx.StaticText(self, label="Dokumentation findes på\nhttps://math221e.github.io ", pos=(20, 240))
+
+        label6 = wx.StaticText(self, label="Bode plotter version " + str(VERSION), pos=(20, 245))
+        label7 = wx.StaticText(self, label="Dokumentation findes på\nhttps://math221e.github.io ", pos=(20, 265))
 
         self.input1 = wx.TextCtrl(self, value="1", pos=(150, 20), size=(140,-1))
         self.input2 = wx.TextCtrl(self, value="5", pos=(150, 50), size=(140,-1))
         self.input3 = wx.TextCtrl(self, value="20", pos=(150, 80), size=(140,-1))
-        self.input4 = wx.TextCtrl(self, value="[1]", pos=(150, 110), size=(140,-1))
-        self.input5 = wx.TextCtrl(self, value="[1, 1]", pos=(150, 140), size=(140, -1))
+        self.input4 = wx.TextCtrl(self, value="", pos=(150, 110), size=(140,-1))
+        self.input5 = wx.TextCtrl(self, value="", pos=(150, 140), size=(140, -1))
         self.input6 = wx.CheckBox(self, id=wx.ID_ANY, label="Gem data til csv fil (bode_data.csv)", pos=(20, 170))
 
         self.plotButton = wx.Button(self, wx.ID_ANY, "Start", pos=(150, 200))
